@@ -1,0 +1,182 @@
+{
+  "info": {
+    "name": "Student Management API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Import OpenAPI from http://localhost:8000/openapi.json for full coverage. This collection includes core flows with Bearer auth."
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8000" },
+    { "key": "accessToken", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/health"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "pm.collectionVariables.set('accessToken', json.access_token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@demo.school\",\n  \"password\": \"Admin123!\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/login"
+          }
+        },
+        {
+          "name": "Register student",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"new.student@demo.school\",\n  \"password\": \"Student123!\",\n  \"full_name\": \"New Student\",\n  \"student_id\": \"STU-NEW-001\",\n  \"grade_year\": 9\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/register"
+          }
+        },
+        {
+          "name": "Refresh token",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"<paste_refresh_token>\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/refresh"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Me",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/api/users/me"
+          }
+        },
+        {
+          "name": "List users (admin)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/api/users"
+          }
+        },
+        {
+          "name": "Create user (admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"staff@demo.school\",\n  \"password\": \"Staff12345!\",\n  \"full_name\": \"Staff Member\",\n  \"role\": \"teacher\"\n}"
+            },
+            "url": "{{baseUrl}}/api/users"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Students",
+      "item": [
+        {
+          "name": "List students",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/api/students?page=1&page_size=10&q="
+          }
+        },
+        {
+          "name": "Create student (admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"created@demo.school\",\n  \"password\": \"Student123!\",\n  \"full_name\": \"Created Student\",\n  \"student_id\": \"STU-ADM-099\",\n  \"grade_year\": 10,\n  \"enrollment_date\": \"2025-09-01\"\n}"
+            },
+            "url": "{{baseUrl}}/api/students"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Courses",
+      "item": [
+        {
+          "name": "List courses",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/api/courses"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Enrollments",
+      "item": [
+        {
+          "name": "List enrollments",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/api/enrollments"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Grades",
+      "item": [
+        {
+          "name": "List grades",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/api/grades"
+          }
+        }
+      ]
+    }
+  ]
+}
