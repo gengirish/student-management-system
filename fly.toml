@@ -1,3 +1,5 @@
+app = "student-mgmt-sms"
+
 [build]
   dockerfile = "Dockerfile.fly"
 

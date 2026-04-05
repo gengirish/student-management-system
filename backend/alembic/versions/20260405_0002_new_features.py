@@ -15,9 +15,9 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.execute("CREATE TYPE IF NOT EXISTS attendancestatus AS ENUM ('present', 'absent', 'late', 'excused')")
-    op.execute("CREATE TYPE IF NOT EXISTS announcementscope AS ENUM ('global', 'course')")
-    op.execute("CREATE TYPE IF NOT EXISTS dayofweek AS ENUM ('monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday')")
+    op.execute("DO $$ BEGIN CREATE TYPE attendancestatus AS ENUM ('present', 'absent', 'late', 'excused'); EXCEPTION WHEN duplicate_object THEN null; END $$")
+    op.execute("DO $$ BEGIN CREATE TYPE announcementscope AS ENUM ('global', 'course'); EXCEPTION WHEN duplicate_object THEN null; END $$")
+    op.execute("DO $$ BEGIN CREATE TYPE dayofweek AS ENUM ('monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'); EXCEPTION WHEN duplicate_object THEN null; END $$")
 
     op.create_table(
         "attendances",
