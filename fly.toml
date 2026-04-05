@@ -1,0 +1,34 @@
+[build]
+  dockerfile = "Dockerfile.fly"
+
+[env]
+  PYTHONPATH = "/app"
+  UPLOAD_DIR = "/app/uploads"
+  PUBLIC_BASE_URL = "https://student-mgmt-sms.fly.dev"
+  ALGORITHM = "HS256"
+  ACCESS_TOKEN_EXPIRE_MINUTES = "30"
+  REFRESH_TOKEN_EXPIRE_DAYS = "7"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [http_service.concurrency]
+    type = "requests"
+    hard_limit = 250
+    soft_limit = 200
+
+[[http_service.checks]]
+  grace_period = "60s"
+  interval = "30s"
+  method = "GET"
+  path = "/health"
+  timeout = "10s"
+
+[[vm]]
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1

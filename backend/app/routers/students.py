@@ -1,9 +1,11 @@
+import io
 import math
 import uuid
 from pathlib import Path
 from typing import Annotated, Optional
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from fastapi.responses import StreamingResponse
 from sqlalchemy import func, or_
 from sqlalchemy.orm import Session, joinedload
 
@@ -201,6 +203,22 @@ def delete_student(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Student not found")
     db.delete(student.user)
     db.commit()
+
+
+@router.get("/export/csv")
+def export_students_csv(
+    _: Annotated[User, Depends(require_roles(UserRole.ADMIN))],
+    db: Session = Depends(get_db),
+) -> StreamingResponse:
+    rows = db.query(Student).options(joinedload(Student.user)).order_by(Student.enrollment_date.desc()).all()
+    lines = ["Full Name,Email,Student ID,Grade Year,Enrollment Date"]
+    for s in rows:
+        lines.append(f'"{s.user.full_name}",{s.user.email},{s.student_id},{s.grade_year},{s.enrollment_date}')
+    buf = io.BytesIO("\n".join(lines).encode("utf-8"))
+    return StreamingResponse(
+        buf, media_type="text/csv",
+        headers={"Content-Disposition": 'attachment; filename="students.csv"'},
+    )
 
 
 @router.post("/{student_id}/profile-image", response_model=StudentOut)

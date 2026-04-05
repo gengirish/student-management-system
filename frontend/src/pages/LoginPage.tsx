@@ -68,10 +68,11 @@ export function LoginPage() {
               {pending ? 'Signing in…' : 'Sign in'}
             </Button>
             <p className="text-center text-sm text-zinc-500">
+              <Link to="/forgot-password" className="font-medium text-zinc-900 underline dark:text-zinc-100">Forgot password?</Link>
+            </p>
+            <p className="text-center text-sm text-zinc-500">
               Need a student account?{' '}
-              <Link to="/register" className="font-medium text-zinc-900 underline dark:text-zinc-100">
-                Register
-              </Link>
+              <Link to="/register" className="font-medium text-zinc-900 underline dark:text-zinc-100">Register</Link>
             </p>
           </form>
         </CardContent>

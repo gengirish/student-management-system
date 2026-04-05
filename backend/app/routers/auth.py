@@ -14,7 +14,7 @@ from app.core.security import (
 from app.deps import get_db
 from app.models.user import RefreshToken as RefreshTokenRow, User, UserRole
 from app.models.student import Student
-from app.schemas.auth import TokenPair, TokenRefresh, UserLogin, UserRegister
+from app.schemas.auth import ForgotPassword, ResetPassword, TokenPair, TokenRefresh, UserLogin, UserRegister
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
@@ -110,4 +110,30 @@ def logout(payload: TokenRefresh, db: Session = Depends(get_db)) -> None:
     if row:
         db.delete(row)
         db.commit()
+
+
+@router.post("/forgot-password")
+def forgot_password(payload: ForgotPassword, db: Session = Depends(get_db)) -> dict:
+    user = db.query(User).filter(User.email == payload.email.lower()).first()
+    if user is None:
+        return {"message": "If that email exists, a reset link has been generated."}
+    token = create_access_token(str(user.id), {"type": "reset"})
+    return {"message": "If that email exists, a reset link has been generated.", "reset_token": token}
+
+
+@router.post("/reset-password")
+def reset_password(payload: ResetPassword, db: Session = Depends(get_db)) -> dict:
+    try:
+        data = decode_token(payload.token)
+    except Exception:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired reset token")
+    sub = data.get("sub")
+    if not sub:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token")
+    user = db.query(User).filter(User.id == sub).first()
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    user.hashed_password = hash_password(payload.new_password)
+    db.commit()
+    return {"message": "Password updated successfully"}
 

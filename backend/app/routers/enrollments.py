@@ -81,3 +81,16 @@ def list_enrollments(
     if course_id:
         q = q.filter(Enrollment.course_id == course_id)
     return q.order_by(Enrollment.enrolled_at.desc()).all()
+
+
+@router.delete("/{enrollment_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_enrollment(
+    enrollment_id: uuid.UUID,
+    _: Annotated[User, Depends(require_roles(UserRole.ADMIN))],
+    db: Session = Depends(get_db),
+) -> None:
+    row = db.query(Enrollment).filter(Enrollment.id == enrollment_id).first()
+    if row is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Enrollment not found")
+    db.delete(row)
+    db.commit()
